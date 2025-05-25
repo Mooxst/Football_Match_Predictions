@@ -1,3 +1,7 @@
+#- Bhavik Kumar (24007107)  
+#- Max Crooks (22009631)  
+#- Rehal Kumar (24016256)  
+
 # Main libraries
 import streamlit as st
 import pandas as pd
@@ -14,13 +18,7 @@ from streamlit import cache_data, cache_resource
 
 st.set_page_config(page_title="Football Match Predictor", layout="wide") # Main page
 
-st.title("Football Match Prediction System") # Title and team info
-st.markdown("""
-**Students:**  
-- Bhavik Kumar (24007107)  
-- Max Crooks (22009631)  
-- Rehal Kumar (24016256)  
-""")
+st.title("Football Match Prediction System") # Title 
 
 # Load data
 @st.cache_data
