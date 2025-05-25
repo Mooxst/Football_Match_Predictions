@@ -25,13 +25,13 @@ st.markdown("""
 # Load data
 @st.cache_data
 def load_data():
-    summary_df = pd.read_csv("summary_df.csv")
+    classification_df = pd.read_csv("classification_df.csv")
     combined_team_data = pd.read_csv("combined_team_data.csv")
-    return summary_df, combined_team_data
+    return classification_df, combined_team_data
 
-summary_df, combined_team_data = load_data()
+classification_df, combined_team_data = load_data()
 
-def generate_match_features(summary_df, match_df): #  match-level dataset
+def generate_match_features(classification_df, match_df): #  match-level dataset
     match_features = []
     outcomes = []
 
@@ -40,8 +40,8 @@ def generate_match_features(summary_df, match_df): #  match-level dataset
         away = row['AwayTeam']
         result = row['FTR']  # H, D, A
 
-        home_data = summary_df[summary_df['Team'] == home]
-        away_data = summary_df[summary_df['Team'] == away]
+        home_data = classification_df[classification_df['Team'] == home]
+        away_data = classification_df[classification_df['Team'] == away]
 
         if home_data.empty or away_data.empty:
             continue
@@ -56,6 +56,8 @@ def generate_match_features(summary_df, match_df): #  match-level dataset
             'away_loss%': away_data['Loss%'],
             'home_poss': home_data['Poss'],
             'away_poss': away_data['Poss'],
+            'home_play_style': home_data['Play_Style_Label'],
+            'away_play_style': away_data['Play_Style_Label'],
             'style_mismatch': int(away_data['Play_Style'] in home_data['Struggle_Against'])
         }
 
@@ -71,15 +73,15 @@ def generate_match_features(summary_df, match_df): #  match-level dataset
 
 
 @st.cache_resource # Train model
-def train_model(summary_df, combined_team_data):
-    X, y = generate_match_features(summary_df, combined_team_data)
+def train_model(classification_df, combined_team_data):
+    X, y = generate_match_features(classification_df, combined_team_data)
     x_train, x_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
     clf = RandomForestClassifier() # Random forest
     clf.fit(x_train, y_train)
     accuracy = accuracy_score(y_test, clf.predict(x_test))
     return clf, accuracy
 
-model, accuracy = train_model(summary_df, combined_team_data)
+model, accuracy = train_model(classification_df, combined_team_data)
 
 
 st.sidebar.title("Navigation") # Navigation Sidebar
@@ -89,13 +91,13 @@ if page == "Prediction": #Match prediction
     st.header("Match Outcome Prediction")
     col1, col2 = st.columns(2)
     with col1:
-        home_team = st.selectbox("Select Home Team", sorted(summary_df['Team'].unique()))
+        home_team = st.selectbox("Select Home Team", sorted(classification_df['Team'].unique()))
     with col2:
-        away_team = st.selectbox("Select Away Team", sorted(summary_df['Team'].unique()))
+        away_team = st.selectbox("Select Away Team", sorted(classification_df['Team'].unique()))
 
     if st.button("Predict Outcome"):
-        home_data = summary_df[summary_df['Team'] == home_team].iloc[0]
-        away_data = summary_df[summary_df['Team'] == away_team].iloc[0]
+        home_data = classification_df[classification_df['Team'] == home_team].iloc[0]
+        away_data = classification_df[classification_df['Team'] == away_team].iloc[0]
 
         input_data = pd.DataFrame([{
             'home_win%': home_data['Home Win%'],
@@ -131,7 +133,7 @@ if page == "Prediction": #Match prediction
 
 
         if input_data['style_mismatch'].iloc[0]: # Show style matchup
-            st.warning(f"⚠️ {home_team} tends to struggle against {away_data['Play_Style']} teams")
+            st.warning(f" {home_team} tends to struggle against {away_data['Play_Style']} teams")
         else:
             st.success("No significant style mismatch detected")
 
@@ -141,26 +143,26 @@ elif page == "Data Exploration":
     tab1, tab2, tab3 = st.tabs(["Team Statistics", "Visualizations", "Raw Data"])
 
     with tab1:
-        st.dataframe(summary_df.sort_values('Win%', ascending=False))
+        st.dataframe(classification_df.sort_values('Win%', ascending=False))
 
     with tab2:
         st.subheader("Win Percentage vs Progressive Passes")
         fig, ax = plt.subplots()
-        ax.scatter(summary_df['Win%'], summary_df['PrgP'])
+        ax.scatter(classification_df['Win%'], classification_df['PrgP'])
         ax.set_xlabel('Win Percentage')
         ax.set_ylabel('Progressive Passes')
         st.pyplot(fig)
 
         st.subheader("Win Percentage vs Possession")
         fig, ax = plt.subplots()
-        ax.scatter(summary_df['Win%'], summary_df['Poss'])
+        ax.scatter(classification_df['Win%'], classification_df['Poss'])
         ax.set_xlabel('Win Percentage')
         ax.set_ylabel('Possession Percentage')
         st.pyplot(fig)
 
         st.subheader("Loss Percentage vs Attacking Third Tackles")
         fig, ax = plt.subplots()
-        ax.scatter(summary_df['Loss%'], summary_df['Att 3rd'])
+        ax.scatter(classification_df['Loss%'], classification_df['Att 3rd'])
         ax.set_xlabel('Loss Percentage')
         ax.set_ylabel('Tackles in Attacking Third')
         st.pyplot(fig)
