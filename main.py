@@ -1,7 +1,3 @@
-#- Bhavik Kumar (24007107)  
-#- Max Crooks (22009631)  
-#- Rehal Kumar (24016256)  
-
 # Main libraries
 import streamlit as st
 import pandas as pd
