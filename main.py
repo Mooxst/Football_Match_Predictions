@@ -125,7 +125,7 @@ if page == "Prediction": #Match prediction
 
 
         if input_data['style_mismatch'].iloc[0]: # Show style matchup
-            st.warning(f"⚠️ {home_team} tends to struggle against {away_data['Play_Style']} teams")
+            st.warning(f" {home_team} tends to struggle against {away_data['Play_Style']} teams")
         else:
             st.success("No significant style mismatch detected")
 
