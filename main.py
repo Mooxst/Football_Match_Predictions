@@ -100,6 +100,8 @@ if page == "Prediction": #Match prediction
             'away_loss%': away_data['Loss%'],
             'home_poss': home_data['Poss'],
             'away_poss': away_data['Poss'],
+            'home_play_style': home_data['Play_Style_Label'],
+            'away_play_style': away_data['Play_Style_Label'],
             'style_mismatch': int(away_data['Play_Style'] in home_data['Struggle_Against'])
         }])
 
