@@ -14,7 +14,7 @@ from streamlit import cache_data, cache_resource
 
 st.set_page_config(page_title="Football Match Predictor", layout="wide") # Main page
 
-st.title("Football Match Prediction System") # Title 
+st.title("Football Match Predictor") # Title 
 
 # Load data
 @st.cache_data
